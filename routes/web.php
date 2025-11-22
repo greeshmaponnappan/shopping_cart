@@ -22,6 +22,9 @@ Route::post('/cart/remove/{id}', [CartController::class,'remove'])->name('cart.r
 Route::post('/cart/apply-coupon',[CartController::class,'applyCoupon'])->name('cart.coupon');
 Route::post('/cart/checkout',[CartController::class,'checkout'])->name('cart.checkout');
 Route::get('/cart/completed/{orderId}',[CartController::class,'completed'])->name('cart.completed');
+Route::put('cart/{id}', [CartController::class, 'update'])
+    ->name('cart.update');
+
 
 
 Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () {
@@ -32,6 +35,7 @@ Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () 
         ->name('products.import.store');
         
     Route::resource('products', ProductController::class); 
+    Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
     
 
         

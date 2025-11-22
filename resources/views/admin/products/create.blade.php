@@ -2,7 +2,21 @@
 @section('title', 'Add Product')
 
 @section('content')
+
+<a href="{{ route('admin.products.index') }}" 
+   class="inline-block mb-4 text-blue-600 hover:underline">&larr; Back to Products</a>
+
 <h1 class="text-2xl font-bold mb-6">Add Product</h1>
+
+@if ($errors->any())
+    <div class="bg-red-100 text-red-700 px-4 py-3 rounded mb-4">
+        <ul class="list-disc ml-6">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 
 <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data"
       class="bg-white p-6 rounded shadow w-full md:w-2/3">
@@ -23,6 +37,6 @@
         <input type="file" name="image" accept="image/jpeg,image/png" class="border w-full px-3 py-2 rounded">
     </div>
 
-    <button class="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
+    <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Save</button>
 </form>
 @endsection

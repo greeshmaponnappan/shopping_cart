@@ -51,6 +51,23 @@ class CartController extends Controller
         $coupon = session('coupon', null);
         return view('cart.index', compact('cart','coupon'));
     }
+    public function update(Request $request, $id)
+{
+    $cart = $this->cart();
+
+    if (!isset($cart[$id])) {
+        return back()->with('error', 'Item not found in cart');
+    }
+
+    $qty = max(1, (int)$request->quantity); 
+
+    $cart[$id]['quantity'] = $qty;
+
+    session(['cart' => $cart]);
+
+    return back()->with('success', 'Cart updated');
+}
+
 
     public function applyCoupon(Request $request)
     {

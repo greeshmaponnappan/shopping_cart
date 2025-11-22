@@ -8,4 +8,8 @@ class Coupon extends Model
 {
     protected $fillable = ['code','type','value','expires_at','is_active'];
     protected $dates = ['expires_at'];
+    protected $casts = [
+    'expires_at' => 'datetime',
+];
+
 }
