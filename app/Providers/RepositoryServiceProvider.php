@@ -5,7 +5,7 @@ namespace App\Providers;
 use App\Interfaces\LoginInterface;
 use App\Interfaces\ProductRepositoryInterface;
 use App\Repositories\ProductRepository;
-use App\Repository\LoginRepository;
+use App\Repositories\LoginRepository;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
