@@ -48,7 +48,7 @@ class ProductController extends Controller
         $data = $request->only(['name', 'price']);
 
         if ($request->hasFile('image')) {
-            $data['image'] = $this->imageService->uploadAsWebp(
+            $data['image'] ='products/' . $this->imageService->uploadAsWebp(
                 $request->image,
                 'products'
             );

@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Concerns\ToModel; 
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-//use Intervention\Image\Facades\Image;
 use Illuminate\Database\Eloquent\Model;
 use Intervention\Image\Laravel\Facades\Image as FacadesImage;
 use Illuminate\Support\Facades\Log;
@@ -40,36 +39,51 @@ class ProductsImport implements ToModel, WithHeadingRow
      * @param string|null $imageUrl
      * @return string|null The path to the stored WEBP image.
      */
-    protected function processImage(?string $imageUrl): ?string
-    {
-        if (empty($imageUrl) || !filter_var($imageUrl, FILTER_VALIDATE_URL)) {
-            return null;
-        }
+    // app/Imports/ProductsImport.php
 
-        try {
-            // Use Laravel's HTTP client to fetch the image content
-            $response = Http::get($imageUrl);
-            
-            if (!$response->successful()) {  
-                throw new \Exception("Failed to fetch image from URL.");
-            }
-            
-            $imageContents = $response->body();
-            
-            // Generate a unique filename and path
-            $filename = 'products/' . Str::uuid() . '.webp';
-            
-            // **IMAGE CONVERSION (PNG/JPG to WEBP)**
-            $webpImage = FacadesImage::make($imageContents)->encode('webp', 90);
-            
-            // Store the WEBP image to the 'public' disk
-            Storage::disk('public')->put($filename, (string) $webpImage); 
-            
-            return $filename;
-            
-        } catch (\Exception $e) {
-            Log::error("Image Import Failure for URL: {$imageUrl}. Error: " . $e->getMessage());
+protected function processImage(?string $imageUrl): ?string
+{
+    if (empty($imageUrl) || !filter_var($imageUrl, FILTER_VALIDATE_URL)) {
+        return null;
+    }
+
+    try {
+        // 1. Fetch the image content (with robust headers and timeout)
+        $response = Http::timeout(10)
+                        ->withHeaders([
+                            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                        ])
+                        ->get($imageUrl);
+        
+        if (!$response->successful()) { 
+            Log::error("Image Import Failure: HTTP failed. URL: {$imageUrl}. Status: " . $response->status());
             return null;
         }
+        
+        $imageContents = $response->body();
+
+        $directory = 'products';
+        
+        // Generate a unique filename and path
+        $uniqueFilename =  Str::uuid() . '.webp';
+
+        $diskPath = $directory . '/' . $uniqueFilename;
+        
+        // 2. **V3 API FIX:** Use read() to load the data 
+        //    and toWebp(quality) to encode the output.
+        $webpImage = FacadesImage::read($imageContents)
+                                 ->toWebp(90);
+        
+        // Store the WEBP image to the 'public' disk.
+        // The V3 object must be converted to a string before storage.
+        Storage::disk('public')->put($diskPath, (string) $webpImage); 
+        
+        return $uniqueFilename;
+        
+    } catch (\Throwable $e) {
+        // ... (error logging)
+        Log::error("Image Import Failure for URL: {$imageUrl}. Error: " . $e->getMessage());
+        return null;
     }
+}
 }
