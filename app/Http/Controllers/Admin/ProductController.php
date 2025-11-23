@@ -8,7 +8,7 @@ use App\Interfaces\ProductRepositoryInterface;
 use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-//use Maatwebsite\Excel\Excel;
+
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Validators\ValidationException;
 
